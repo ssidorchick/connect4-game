@@ -1,24 +1,43 @@
 const readline = require('readline');
-const { Game } = require('./game');
+const { Game } = require('./src/game');
 
-var rl = readline.createInterface({
+function printPlayer(game) {
+  process.stdout.write(`${game.currentPlayer.name} (${game.currentPlayer.chip}) > `);
+}
+
+const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
   terminal: false
 });
 
 const game = new Game(5, 6);
-rl.on('line', (input) => {
-  let [column, value] = input.split(' ');
-  column = parseInt(column);
-  if (game.canDrop(column)) {
-    game.drop(column, value);
-    if (game.hasWinner(value)) {
-      console.log(`${value} winned`);
-      process.exit(0);
-    }
-  } else {
-    console.log('Cannot drop on column', column);
+
+printPlayer(game);
+
+rl.on('line', input => {
+  const {column, error: inputError} = game.readPlayerInput(input);
+  if (inputError) {
+    console.log(inputError);
+    printPlayer(game);
+    return;
   }
+
+  const {row, error: dropError} = game.dropChip(column);
+  if (dropError) {
+    console.log(dropError);
+    printPlayer(game);
+    return;
+  }
+
+  const {winner} = game.testWinner(row, column);
+  if (winner) {
+    game.print();
+    console.log(winner);
+    process.exit(0);
+  }
+
   game.print();
+  game.setNextPlayer();
+  printPlayer(game);
 });
