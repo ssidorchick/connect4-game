@@ -1,5 +1,5 @@
 const readline = require('readline');
-const { Game } = require('./src/game');
+const { Game } = require('./game');
 
 function printPlayer(game) {
   process.stdout.write(`${game.currentPlayer.name} (${game.currentPlayer.chip}) > `);
